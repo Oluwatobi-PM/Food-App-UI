@@ -1,11 +1,27 @@
-import { Link } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import { logout, reset } from "../features/auth/authSlice"
+
+/* This example requires Tailwind CSS v2.0+ */
 const navigation = [
-    { name: 'Solutions', href: '#' },
+    { name: 'Products', href: '#' },
     { name: 'Pricing', href: '#' },
     { name: 'Docs', href: '#' },
     { name: 'Company', href: '#' },
   ]
-function Header() {
+  
+  export default function Header() {
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const {user} = useSelector((state) => state.auth)
+  
+    const onLogout = () => {
+      dispatch(logout())
+      dispatch(reset())
+      navigate('/')
+    }
+  
+
     return (
       <header className="bg-indigo-600">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
@@ -27,8 +43,20 @@ function Header() {
                 ))}
               </div>
             </div>
-            <div className="ml-10 space-x-4">
-              <Link to="/"
+              {user ? (
+                 <div className="ml-10 space-x-4">
+                   <Link to="/" onClick={onLogout}
+                
+                className="inline-block bg-indigo-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75"
+              >
+                Sign out
+              </Link>
+            
+                 </div>
+              ) : (
+                 <div className="ml-10 space-x-4">
+                   <Link to="/signin"
+                
                 className="inline-block bg-indigo-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75"
               >
                 Sign in
@@ -38,7 +66,8 @@ function Header() {
               >
                 Sign up
               </Link>
-            </div>
+                 </div>
+              )}
           </div>
           <div className="py-4 flex flex-wrap justify-center space-x-6 lg:hidden">
             {navigation.map((link) => (
@@ -51,13 +80,4 @@ function Header() {
       </header>
     )
   }
-
-export default Header
-
-
-
-
-
-
-
-
+  
