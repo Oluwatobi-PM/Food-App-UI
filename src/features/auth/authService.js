@@ -6,7 +6,7 @@ const API_URL = process.env.REACT_APP_API_URL
 
 // Register user
 const register = async (userData) => {
-  const response = await axios.post(API_URL + 'users/signup', userData)
+  const response = await axios.post(API_URL + 'users', userData)
 
   if (response.data) {
     localStorage.setItem('user', JSON.stringify(response.data))
