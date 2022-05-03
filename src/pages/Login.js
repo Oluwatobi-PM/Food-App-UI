@@ -1,33 +1,70 @@
-/*
-  This example requires Tailwind CSS v2.0+ 
-  
-  This example requires some changes to your config:
-  
-  
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  
-*/
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector  } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { login, reset } from '../features/auth/authSlice'
+import Spinner from "react-spinkit"
 import { Link } from "react-router-dom"
 
 
 export default function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
+
+  const {email, password} = formData
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const {user, isLoading, isSuccess, isError, message} = useSelector((state) => state.auth)
+
+  
+  useEffect(() => {
+    if (isError) {
+      toast.error(message)
+    }
+
+    // Redirect when logged in
+    if (isSuccess || user) {
+      navigate('/home')
+    }
+
+    dispatch(reset())
+  }, [isError, isSuccess, user, message, navigate, dispatch])
+
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+    const userData = {
+      email,
+      password
+    }
+    console.log(userData)
+    dispatch(login(userData))
+  }
+
+  if (isLoading) {
+    return (
+    <div className="grid place-items-center h-full w-full">
+    <Spinner 
+    name="ball-spin-fade-loader"
+    color="blue"
+    fadeIn="none"
+    className="flex flex-col pt-32 text-center items-center justify-center  h-screen"
+    />
+    </div>
+    )
+  }
+
     return (
       <>
-        {/*
-          This example requires updating your template:
-  
-          
-          <html class="h-full bg-white">
-          <body class="h-full">
-          
-        */}
         <div className="min-h-full flex">
           <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
             <div className="mx-auto w-full max-w-sm lg:w-96">
@@ -108,7 +145,7 @@ export default function Login() {
                 </div>
   
                 <div className="mt-6">
-                  <form action="#" method="POST" className="space-y-6">
+                  <form action="#" onSubmit={onSubmit} className="space-y-6">
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email address
@@ -120,6 +157,9 @@ export default function Login() {
                           type="email"
                           autoComplete="email"
                           required
+                          value={email}
+                          onChange={onChange}
+                          placeholder="Email address"
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
@@ -134,6 +174,8 @@ export default function Login() {
                           id="password"
                           name="password"
                           type="password"
+                          value={password}
+                          onChange={onChange}
                           autoComplete="current-password"
                           required
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
