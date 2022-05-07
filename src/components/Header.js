@@ -14,7 +14,7 @@ const navigation = [
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const {user} = useSelector((state) => state.auth)
-  
+    console.log(user)
     const onLogout = () => {
       dispatch(logout())
       dispatch(reset())
@@ -55,7 +55,7 @@ const navigation = [
                  </div>
               ) : (
                  <div className="ml-10 space-x-4">
-                   <Link to="/signin"
+                   <Link to="/"
                 
                 className="inline-block bg-indigo-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75"
               >

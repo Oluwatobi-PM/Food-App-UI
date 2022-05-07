@@ -7,6 +7,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import CreateNewRestaurant from './pages/CreateNewRestaurant';
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<PrivateRoute />} >
           <Route path="/home" element={<Home />} />
+          </Route>
+          <Route path="/createrestaurant" element={<PrivateRoute />} >
+          <Route path="/createrestaurant" element={<CreateNewRestaurant />} />
           </Route>
           <Route path="/signup" element={<Signup />} />
         </Routes>
