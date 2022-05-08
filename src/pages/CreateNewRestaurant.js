@@ -1,54 +1,143 @@
 import { Link } from "react-router-dom"
 import {  useState } from 'react'
-// import {useEffect} from 'react'
-// import { useSelector  } from 'react-redux'
-// import {useDispatch} from 'react-redux'
-// import { useNavigate } from 'react-router-dom'
-// import { toast } from 'react-toastify'
-// import { reset } from '../features/auth/authSlice'
-// import Spinner from "react-spinkit"
-// import { createRestaurant } from '../features/menu/restaurantSlice'
-// import { Field, FieldArray, FieldProps, Form, Formik, getIn } from "formik";
-// import * as yup from "yup";
+import DeleteIcon from '@mui/icons-material/Delete';
+import {useEffect} from 'react'
+import { useSelector  } from 'react-redux'
+import {useDispatch} from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { reset } from '../features/auth/authSlice'
+import Spinner from "react-spinkit"
+import { createRestaurant } from '../features/menu/restaurantSlice'
 
-
-
-
-  
 
 export default function CreateNewRestaurant() {
-    // const [meals, setMeals] = useState([]);
-    //     const [currentMeal, setCurrentMeal] = useState("");
-    //     const [currentPrice, setCurrentPrice] = useState(null);
-      
-  const [formData, setFormData] = useState({
-    restaurant: '',
-    food: '',
-    drink: '',
-    drink2: '',
-  })
- const { restaurant, food, drink, drink2 } = formData
+    const [currentFood, setCurrentFood] = useState("");
+    const [currentPrice, setCurrentPrice] = useState("");
+    const [foods, setFoods] = useState([]);
 
- 
-//  const { user } = useSelector(
-//   (state) => state.auth
-// )
+    const [currentDrink, setCurrentDrink] = useState("");
+    const [currentDrinkPrice, setCurrentDrinkPrice] = useState("");
+    const [drinks, setDrinks] = useState([]);
 
+    const [restaurantName, setRestaurantName] = useState("");
+    const { isLoading, isError, isSuccess, message } = useSelector(
+      (state) => state.restaurants
+    )
+    
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
- const onChange = (e) => {
-  setFormData((prevState) => ({
-    ...prevState,
-    [e.target.restaurant]: e.target.value,
-  }))
-  console.log(e.target.value)
+const addFood = (e) => {
+  e.preventDefault();
+  const newFood = currentFood;
+  const newPrice = currentPrice;
+  console.log(newFood, newPrice);
+  if (newFood !== "" && newPrice) {
+    const newEntry = [
+      ...foods,
+      { Name: newFood, Price: newPrice},
+    ];
+    setFoods(newEntry);
+    setCurrentFood("");
+    setCurrentPrice("");
+  }
+};
+
+const addDrink = (e) => {
+  e.preventDefault();
+  const newDrink = currentDrink;
+  const newDrinkPrice = currentDrinkPrice;
+  console.log(newDrink, newDrinkPrice);
+  if (newDrink !== "" && newDrinkPrice) {
+    const newEntry = [
+      ...drinks,
+      { Name: newDrink, Price: newDrinkPrice},
+    ];
+    setDrinks(newEntry);
+    setCurrentDrink("");
+    setCurrentDrinkPrice("");
+  }
+};
+
+const handleRestaurantNameInput = (e) => {
+  setRestaurantName(e.target.value);
+};
+
+const handlePriceInput = (e) => {
+  setCurrentPrice(e.target.value);
+};
+
+const handleFoodInput = (e) => {
+    setCurrentFood(e.target.value);
+
 }
+
+const handleDrinkPriceInput = (e) => {
+  setCurrentDrinkPrice(e.target.value);
+};
+
+
+
+const handleDrinkInput = (e) => {
+    setCurrentDrink(e.target.value);
+}
+
+const deleteFood = (key) => {
+  console.log(key);
+  const filteredFoods = foods.filter((food) => food.key !== key);
+  setFoods(filteredFoods);
+  console.log(foods)
+};
+
+
+
+const deleteDrink = (key) => {
+  console.log(key);
+  const filteredDrinks = drinks.filter((drink) => drink.key !== key);
+  setDrinks(filteredDrinks);
+  console.log(drinks)
+};
+
+const restaurantData = { restaurant: restaurantName, food: foods, drink: drinks}
 
 const onSubmit = (e) => {
   e.preventDefault()
-
+  dispatch(createRestaurant(restaurantData))
 }
 
 
+useEffect(() => {
+  if (isError) {
+    toast.error(message)
+  }
+
+  if (isSuccess) {
+    dispatch(reset())
+    navigate('/home')
+  }
+
+  dispatch(reset())
+}, [dispatch, isError, isSuccess, navigate, message])
+
+console.log(foods)
+console.log(drinks)
+console.log(restaurantName)
+console.log(restaurantData)
+
+
+if (isLoading) {
+  return (
+  <div className="grid place-items-center h-full w-full">
+  <Spinner 
+  name="ball-spin-fade-loader"
+  color="blue"
+  fadeIn="none"
+  className="flex flex-col pt-32 text-center items-center justify-center  h-screen"
+  />
+  </div>
+  )
+}
     return (
       <>
  
@@ -84,19 +173,18 @@ const onSubmit = (e) => {
                 <div className="mt-6">
                   <form onSubmit={onSubmit} className="space-y-6">
                   <div>
-                      <label htmlFor="restaurant" className="block text-sm font-medium text-gray-700">
+                      <p className="block text-sm font-medium text-gray-700">
                        Restaurant Name
-                      </label>
+                      </p>
                       <div className="mt-1">
                         <input
                           id="restaurant"
-                          restaurant="restaurant"
+                          name="restaurant"
                           type="text"
-                          onChange={onChange}
-                          value={restaurant}
+                          onChange={(e) =>  handleRestaurantNameInput(e)}
+                          value={restaurantName}
                           autoComplete="restaurant"
                           required
-                        //   placeholder="Type in your userrestaurant"
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
@@ -104,77 +192,95 @@ const onSubmit = (e) => {
   
                    
                     <div>
-                      <label htmlFor="food" className="block text-sm font-medium text-gray-700">
+                      <p className="block text-sm font-medium text-gray-700">
                         Food
-                      </label>
+                      </p>
                       <div className="mt-1">
                         <input
-                          id="food"
-                          restaurant="food"
+                          id="currentFood"
+                          name="currentFood"
                           type="text"
-                          onChange={onChange}
-                          value={food}
-                          autoComplete="food"
-                        //   placeholder="Type in your food address"
-                          required
+                          onChange={(e) => handleFoodInput(e)}
+                          value={currentFood}
+                          autoComplete="currentFood"
+                          placeholder="Type Food Name"
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
-                    </div>
-  
-                    <div className="space-y-1">
-                      <label htmlFor="drink" className="block text-sm font-medium text-gray-700">
-                        Drinks
-                      </label>
                       <div className="mt-1">
                         <input
-                          id="drink"
-                          restaurant="drink"
-                          type="drink"
-                          onChange={onChange}
-                          value={drink}
-                          autoComplete="current-drink"
-                          required
+                          id="currentPrice"
+                          name="currentPrice"
+                          type="number"
+                          onChange={(e) => handlePriceInput(e)}
+                          value={currentPrice}
+                          placeholder="Type Food Price"
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
+                      <button className="p-2 border border-gray-300 rounded-md mt-1"
+                      onClick={addFood}
+                    >
+                    Add
+                    </button>
+                     <div>
+                       {foods ? (foods.map((item, index) => (
+                         <ul key={index} className="flex items-center justify-between flex-row">
+                         <li>{item.Name}</li>
+                         <li>{item.Price} Naira</li>
+                         <div onClick={() => deleteFood(item.key)}>
+                         <DeleteIcon />
+                         </div>
+                         </ul>
+                       ))) : null}
+                     </div>
                     </div>
   
-                    <div className="space-y-1">
-                      <label htmlFor="drink" className="block text-sm font-medium text-gray-700">
-                       Done yet?
-                      </label>
-                      <div className="mt-1  hidden">
+                    <div>
+                      <p className="block text-sm font-medium text-gray-700">
+                        Drink
+                      </p>
+                      <div className="mt-1">
                         <input
-                          id="drink2"
-                          restaurant="drink2"
-                          type="drink"
-                          onChange={onChange}
-                          value={drink2}
-                          autoComplete="current-drink"
-                          required
+                          id="currentDrink"
+                          name="currentDrink"
+                          type="text"
+                          onChange={(e) => handleDrinkInput(e)}
+                          value={currentDrink}
+                          autoComplete="currentDrink"
+                          placeholder="Type in your Drink Name"
                           className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
+                      <div className="mt-1">
                         <input
-                          id="remember-me"
-                          restaurant="remember-me"
-                          type="checkbox"
-                          className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                          id="currentDrinkPrice"
+                          name="currentDrinkPrice"
+                          type="number"
+                          onChange={(e) => handleDrinkPriceInput(e)}
+                          value={currentDrinkPrice}
+                          autoComplete="currentDrinkPrice"
+                          placeholder="Type in your Drink Price"
+                          className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
-                        <label htmlFor="remember-me" className="ml-2 text-sm text-gray-900 hidden">
-                          Remember me
-                        </label>
                       </div>
-  
-                      <div className="text-sm hidden">
-                        <Link to="/" className="font-medium text-indigo-600 hover:text-indigo-500">
-                          Forgot your drink?
-                        </Link>
-                      </div>
+                      <button
+                      onClick={addDrink}
+                      className="p-2 border border-gray-300 rounded-md mt-1"
+                    >
+                    Add
+                    </button>
+                     <div >
+                       {drinks ? (drinks.map((item, index) => (
+                         <ul className="flex items-center justify-between flex-row"  key={index}>
+                         <li>{item.Name}</li>
+                         <li>{item.Price} Naira</li>
+                         <div onClick={() => deleteDrink(item.key)}>
+                         <DeleteIcon />
+                         </div>
+                         </ul>
+                       ))) : null}
+                     </div>
                     </div>
   
                     <div>
