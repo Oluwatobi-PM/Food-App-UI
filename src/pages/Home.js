@@ -47,11 +47,11 @@ function Home() {
         <div className="md:flex md:items-center md:justify-between sm:flex sm:justify-between">
           <h2 className="text-2xl font-extrabold tracking-tight text-gray-900">Trending restaurants</h2>
           { user.user.role === 'Admin'  ? (<div className="ml-10 space-x-4">
-                   <Link to="/createrestaurant"
+                   <Link to="/admin"
                 
                 className="inline-block bg-indigo-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75"
               >
-                Add Restaurant
+                Go to Admin Dashboard
               </Link>
             
                  </div>) : null }
